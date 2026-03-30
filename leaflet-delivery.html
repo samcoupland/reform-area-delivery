@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leaflet Delivery Areas</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+  :root {
+    --reform: #00bed6;
+    --reform-dark: #009ab0;
+    --reform-light: #e0f9fc;
+    --reform-mid: #b3eef5;
+    --ink: #0d1f26;
+    --ink-mid: #2c4a54;
+    --ink-light: #6b8f9a;
+    --white: #ffffff;
+    --grey-light: #f4fbfc;
+    --grey-border: #d0eef2;
+    --accent: #ff5c35;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--grey-light);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ===== SCREEN STYLES ===== */
+  .screen-nav {
+    background: var(--ink);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--white);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .nav-brand .dot {
+    width: 10px; height: 10px;
+    background: var(--reform);
+    border-radius: 50%;
+  }
+
+  .nav-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-primary {
+    background: var(--reform);
+    color: var(--ink);
+  }
+  .btn-primary:hover { background: var(--reform-dark); color: var(--white); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--reform);
+    border: 1.5px solid var(--reform);
+  }
+  .btn-ghost:hover { background: var(--reform); color: var(--ink); }
+
+  .btn-danger {
+    background: transparent;
+    color: #ff7a5c;
+    border: 1.5px solid #ff7a5c;
+    font-size: 0.8rem;
+    padding: 4px 12px;
+  }
+  .btn-danger:hover { background: #ff7a5c; color: white; }
+
+  /* ===== PAGES ===== */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ===== CONTENTS PAGE ===== */
+  .contents-hero {
+    background: var(--ink);
+    padding: 3rem 2rem 2.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .contents-hero::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--reform);
+  }
+
+  .contents-hero h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    color: var(--white);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .contents-hero h1 span { color: var(--reform); }
+
+  .contents-hero p {
+    margin-top: 0.75rem;
+    color: var(--ink-light);
+    font-size: 1rem;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+  }
+
+  .contents-wrapper {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    margin-top: 2rem;
+  }
+
+  .section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+  }
+
+  .area-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+
+  .area-card {
+    background: var(--white);
+    border: 1.5px solid var(--grey-border);
+    border-radius: 8px;
+    padding: 1.25rem 1.25rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .area-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--reform);
+    transform: scaleY(0);
+    transition: transform 0.2s ease;
+    transform-origin: bottom;
+  }
+
+  .area-card:hover {
+    border-color: var(--reform);
+    box-shadow: 0 4px 16px rgba(0,190,214,0.15);
+    transform: translateY(-2px);
+  }
+
+  .area-card:hover::before { transform: scaleY(1); }
+
+  .area-number {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 2rem;
+    color: var(--reform-mid);
+    line-height: 1;
+    margin-bottom: 0.4rem;
+  }
+
+  .area-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--ink);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    margin-bottom: 0.35rem;
+  }
+
+  .area-meta {
+    font-size: 0.8rem;
+    color: var(--ink-light);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+
+  .status-done { background: #d4f5e9; color: #0d7a4e; }
+  .status-partial { background: #fff3cd; color: #856404; }
+  .status-pending { background: var(--reform-light); color: var(--reform-dark); }
+
+  .add-area-card {
+    background: transparent;
+    border: 2px dashed var(--grey-border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 120px;
+    color: var(--ink-light);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .add-area-card:hover {
+    border-color: var(--reform);
+    color: var(--reform);
+    background: var(--reform-light);
+  }
+
+  .export-bar {
+    background: var(--ink);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .export-bar p {
+    color: var(--ink-light);
+    font-size: 0.85rem;
+  }
+
+  /* ===== AREA DETAIL PAGE ===== */
+  .area-detail-header {
+    background: var(--ink);
+    padding: 2rem 2rem 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .area-detail-header .back-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--reform);
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 0.5rem;
+    padding: 0;
+  }
+
+  .area-detail-header .back-btn:hover { color: var(--white); }
+
+  .area-detail-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    color: var(--white);
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .area-detail-title span { color: var(--reform); }
+
+  .area-detail-body {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  @media (max-width: 700px) {
+    .area-detail-body { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--white);
+    border: 1.5px solid var(--grey-border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    background: var(--reform-light);
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1.5px solid var(--grey-border);
+  }
+
+  .card-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--reform-dark);
+  }
+
+  .card-body { padding: 1.25rem; }
+
+  .map-placeholder {
+    background: linear-gradient(135deg, var(--reform-light) 0%, #c8f0f5 100%);
+    border-radius: 6px;
+    height: 240px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--reform-dark);
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 1rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .map-placeholder svg { opacity: 0.5; }
+
+  .map-note {
+    font-size: 0.75rem;
+    color: var(--ink-light);
+    margin-top: 0.75rem;
+    font-family: 'Barlow', sans-serif;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  /* Streets list */
+  .street-list { list-style: none; }
+
+  .street-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--grey-border);
+    font-size: 0.9rem;
+  }
+
+  .street-item:last-child { border-bottom: none; }
+
+  .street-check {
+    width: 18px; height: 18px;
+    border: 2px solid var(--grey-border);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .street-check.checked {
+    background: var(--reform);
+    border-color: var(--reform);
+  }
+
+  .street-check.checked::after {
+    content: '✓';
+    color: var(--white);
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .street-name { flex: 1; color: var(--ink); }
+  .street-name.done {
+    text-decoration: line-through;
+    color: var(--ink-light);
+  }
+
+  .street-notes {
+    font-size: 0.75rem;
+    color: var(--ink-light);
+    font-style: italic;
+  }
+
+  .add-street-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 1rem;
+  }
+
+  .input-field {
+    flex: 1;
+    padding: 7px 12px;
+    border: 1.5px solid var(--grey-border);
+    border-radius: 4px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.85rem;
+    color: var(--ink);
+    background: var(--white);
+    transition: border-color 0.15s;
+  }
+
+  .input-field:focus {
+    outline: none;
+    border-color: var(--reform);
+  }
+
+  .progress-bar-wrap {
+    background: var(--grey-border);
+    border-radius: 20px;
+    height: 8px;
+    margin: 0.75rem 0 0.5rem;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--reform);
+    border-radius: 20px;
+    transition: width 0.3s ease;
+  }
+
+  .progress-label {
+    font-size: 0.78rem;
+    color: var(--ink-light);
+    font-weight: 500;
+  }
+
+  /* ===== MODALS ===== */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(13,31,38,0.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+
+  .modal h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    margin-bottom: 1.25rem;
+  }
+
+  .modal h2 span { color: var(--reform); }
+
+  .form-group { margin-bottom: 1rem; }
+
+  .form-label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 5px;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1.5px solid var(--grey-border);
+    border-radius: 5px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.9rem;
+    color: var(--ink);
+    transition: border-color 0.15s;
+  }
+
+  .form-input:focus { outline: none; border-color: var(--reform); }
+
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+  }
+
+  .btn-cancel {
+    background: none;
+    border: 1.5px solid var(--grey-border);
+    color: var(--ink-light);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 7px 18px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .btn-cancel:hover { border-color: var(--ink-light); color: var(--ink); }
+
+  /* ===== PRINT STYLES ===== */
+  @media print {
+    body { background: white; }
+
+    .screen-nav, .export-bar, .add-area-card,
+    .add-street-row, .nav-actions, .back-btn,
+    .btn, .area-detail-header .area-actions { display: none !important; }
+
+    .page { display: block !important; }
+    .contents-page { page-break-after: always; }
+    .area-page { page-break-before: always; }
+
+    .contents-hero {
+      padding: 1.5rem 1rem;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .area-detail-body {
+      grid-template-columns: 1fr 280px;
+      padding: 1rem;
+    }
+
+    .area-card { break-inside: avoid; }
+
+    .map-placeholder {
+      height: 180px;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    @page {
+      size: A4;
+      margin: 12mm 14mm;
+    }
+  }
+
+  /* ===== PDF EXPORT PAGE STYLE ===== */
+  .pdf-page {
+    background: white;
+    width: 210mm;
+    min-height: 297mm;
+    padding: 12mm 14mm;
+    box-sizing: border-box;
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="screen-nav">
+  <div class="nav-brand">
+    <div class="dot"></div>
+    Leaflet Delivery
+  </div>
+  <div class="nav-actions">
+    <button class="btn btn-ghost" onclick="exportAllPDF()">⬇ Export PDF</button>
+    <button class="btn btn-primary" onclick="openModal()">+ Add Area</button>
+  </div>
+</nav>
+
+<!-- CONTENTS PAGE -->
+<div id="page-contents" class="page active contents-page">
+  <div class="contents-hero">
+    <h1>Delivery <span>Area</span> Index</h1>
+    <p>Leaflet distribution schedule &amp; street tracker</p>
+  </div>
+
+  <div class="contents-wrapper">
+    <div class="section-header">
+      <span class="section-title">All Areas</span>
+      <span id="area-count" class="section-title">0 areas</span>
+    </div>
+    <div class="area-grid" id="area-grid">
+      <div class="add-area-card" onclick="openModal()">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        Add New Area
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AREA DETAIL PAGE -->
+<div id="page-area" class="page area-page">
+  <div class="area-detail-header">
+    <div>
+      <button class="back-btn" onclick="showContents()">
+        ← Back to Index
+      </button>
+      <div class="area-detail-title" id="detail-title">Area <span id="detail-number">1</span></div>
+      <div style="color: var(--ink-light); font-size:0.85rem; margin-top:4px;" id="detail-subtitle"></div>
+    </div>
+    <div class="area-actions" style="display:flex;gap:8px;align-items:center;margin-top:1.5rem;">
+      <button class="btn btn-ghost" onclick="printCurrentArea()">🖨 Print</button>
+      <button class="btn btn-danger" id="delete-area-btn" onclick="deleteCurrentArea()">Delete Area</button>
+    </div>
+  </div>
+
+  <div class="area-detail-body" id="area-detail-body">
+    <!-- Dynamically rendered -->
+  </div>
+</div>
+
+<!-- ADD AREA MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h2>Add <span>New Area</span></h2>
+    <div class="form-group">
+      <label class="form-label">Area Name / Description</label>
+      <input class="form-input" id="input-name" placeholder="e.g. North High Street" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes (optional)</label>
+      <input class="form-input" id="input-notes" placeholder="e.g. Near the park, avoid steep hill" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Map URL (optional, Google Maps embed or image link)</label>
+      <input class="form-input" id="input-map" placeholder="https://maps.google.com/..." />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="addArea()">Add Area</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== STATE =====
+let areas = JSON.parse(localStorage.getItem('leaflet_areas') || '[]');
+let currentAreaId = null;
+
+function save() {
+  localStorage.setItem('leaflet_areas', JSON.stringify(areas));
+}
+
+// ===== ROUTING =====
+function showContents() {
+  document.getElementById('page-contents').classList.add('active');
+  document.getElementById('page-area').classList.remove('active');
+  renderContents();
+}
+
+function showArea(id) {
+  currentAreaId = id;
+  document.getElementById('page-contents').classList.remove('active');
+  document.getElementById('page-area').classList.add('active');
+  renderAreaDetail(id);
+}
+
+// ===== RENDER CONTENTS =====
+function renderContents() {
+  const grid = document.getElementById('area-grid');
+  const count = document.getElementById('area-count');
+  count.textContent = areas.length + ' area' + (areas.length !== 1 ? 's' : '');
+
+  // Clear all but the add card
+  grid.innerHTML = '';
+
+  areas.forEach((area, idx) => {
+    const done = area.streets.filter(s => s.done).length;
+    const total = area.streets.length;
+    const pct = total ? Math.round((done/total)*100) : 0;
+    const statusClass = pct === 100 ? 'status-done' : pct > 0 ? 'status-partial' : 'status-pending';
+    const statusLabel = pct === 100 ? '✓ Complete' : pct > 0 ? `${pct}% Done` : 'Pending';
+
+    const card = document.createElement('div');
+    card.className = 'area-card';
+    card.onclick = () => showArea(area.id);
+    card.innerHTML = `
+      <div class="area-number">0${idx+1}</div>
+      <div class="area-name">${area.name}</div>
+      <div class="area-meta">
+        <span>${total} street${total !== 1 ? 's' : ''}</span>
+        <span class="status-pill ${statusClass}">${statusLabel}</span>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  // Add card
+  const addCard = document.createElement('div');
+  addCard.className = 'add-area-card';
+  addCard.onclick = openModal;
+  addCard.innerHTML = `
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+    Add New Area
+  `;
+  grid.appendChild(addCard);
+}
+
+// ===== RENDER AREA DETAIL =====
+function renderAreaDetail(id) {
+  const area = areas.find(a => a.id === id);
+  if (!area) return;
+  const idx = areas.indexOf(area);
+
+  document.getElementById('detail-number').textContent = (idx+1);
+  document.getElementById('detail-title').innerHTML = `Area <span style="color:var(--reform)">${idx+1}</span>`;
+  document.getElementById('detail-subtitle').textContent = area.name + (area.notes ? ' — ' + area.notes : '');
+
+  const done = area.streets.filter(s => s.done).length;
+  const total = area.streets.length;
+  const pct = total ? Math.round((done/total)*100) : 0;
+
+  const body = document.getElementById('area-detail-body');
+  body.innerHTML = `
+    <!-- Streets -->
+    <div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Streets to Complete</span>
+          <span class="progress-label">${done}/${total} done</span>
+        </div>
+        <div class="card-body">
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" style="width:${pct}%"></div>
+          </div>
+          <p class="progress-label" style="margin-bottom:0.75rem;">${pct}% complete</p>
+          <ul class="street-list" id="street-list"></ul>
+          <div class="add-street-row">
+            <input class="input-field" id="new-street-input" placeholder="Add a street name..." onkeydown="if(event.key==='Enter')addStreet('${id}')" />
+            <button class="btn btn-primary" onclick="addStreet('${id}')">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map -->
+    <div>
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="card-header">
+          <span class="card-title">Area Map</span>
+        </div>
+        <div class="card-body" style="padding:0.75rem;">
+          ${area.mapUrl
+            ? `<iframe src="${area.mapUrl}" width="100%" height="240" style="border:none;border-radius:6px;" loading="lazy" allowfullscreen></iframe>`
+            : `<div class="map-placeholder">
+                <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6-10l6-3m0 13l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 10m0-3v13"/>
+                </svg>
+                <div>Map not set</div>
+                <div class="map-note">Add a Google Maps embed URL when editing this area</div>
+              </div>`
+          }
+          <div style="margin-top:0.75rem;display:flex;gap:6px;">
+            <input class="input-field" id="map-url-input" placeholder="Google Maps embed URL..." value="${area.mapUrl || ''}" style="flex:1;font-size:0.78rem;" />
+            <button class="btn btn-ghost" style="font-size:0.75rem;padding:5px 10px;" onclick="saveMapUrl('${id}')">Save</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Summary</span>
+        </div>
+        <div class="card-body">
+          <div style="font-size:0.85rem;color:var(--ink-light);line-height:1.7;">
+            <div><strong style="color:var(--ink);">Area:</strong> ${area.name}</div>
+            ${area.notes ? `<div><strong style="color:var(--ink);">Notes:</strong> ${area.notes}</div>` : ''}
+            <div><strong style="color:var(--ink);">Streets:</strong> ${total}</div>
+            <div><strong style="color:var(--ink);">Completed:</strong> ${done} (${pct}%)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  renderStreets(id);
+}
+
+function renderStreets(id) {
+  const area = areas.find(a => a.id === id);
+  const list = document.getElementById('street-list');
+  if (!list || !area) return;
+
+  list.innerHTML = '';
+  area.streets.forEach((street, si) => {
+    const li = document.createElement('li');
+    li.className = 'street-item';
+    li.innerHTML = `
+      <div class="street-check ${street.done ? 'checked' : ''}" onclick="toggleStreet('${id}', ${si})"></div>
+      <span class="street-name ${street.done ? 'done' : ''}">${street.name}</span>
+      ${street.notes ? `<span class="street-notes">${street.notes}</span>` : ''}
+      <button class="btn btn-danger" style="padding:2px 8px;font-size:0.7rem;" onclick="removeStreet('${id}',${si})">✕</button>
+    `;
+    list.appendChild(li);
+  });
+}
+
+// ===== ACTIONS =====
+function toggleStreet(areaId, si) {
+  const area = areas.find(a => a.id === areaId);
+  area.streets[si].done = !area.streets[si].done;
+  save();
+  renderAreaDetail(areaId);
+}
+
+function addStreet(areaId) {
+  const input = document.getElementById('new-street-input');
+  const name = input.value.trim();
+  if (!name) return;
+  const area = areas.find(a => a.id === areaId);
+  area.streets.push({ name, done: false, notes: '' });
+  save();
+  input.value = '';
+  renderAreaDetail(areaId);
+}
+
+function removeStreet(areaId, si) {
+  const area = areas.find(a => a.id === areaId);
+  area.streets.splice(si, 1);
+  save();
+  renderAreaDetail(areaId);
+}
+
+function saveMapUrl(areaId) {
+  const url = document.getElementById('map-url-input').value.trim();
+  const area = areas.find(a => a.id === areaId);
+  area.mapUrl = url;
+  save();
+  renderAreaDetail(areaId);
+}
+
+function deleteCurrentArea() {
+  if (!currentAreaId) return;
+  if (!confirm('Delete this area and all its streets?')) return;
+  areas = areas.filter(a => a.id !== currentAreaId);
+  save();
+  showContents();
+}
+
+// ===== MODAL =====
+function openModal() {
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('input-name').focus(), 50);
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.getElementById('input-name').value = '';
+  document.getElementById('input-notes').value = '';
+  document.getElementById('input-map').value = '';
+}
+
+function addArea() {
+  const name = document.getElementById('input-name').value.trim();
+  if (!name) { document.getElementById('input-name').focus(); return; }
+  const notes = document.getElementById('input-notes').value.trim();
+  const mapUrl = document.getElementById('input-map').value.trim();
+  const id = 'area_' + Date.now();
+  areas.push({ id, name, notes, mapUrl, streets: [] });
+  save();
+  closeModal();
+  renderContents();
+}
+
+// ===== PRINT =====
+function printCurrentArea() {
+  window.print();
+}
+
+// ===== PDF EXPORT =====
+async function exportAllPDF() {
+  if (areas.length === 0) {
+    alert('No areas to export. Add some areas first!');
+    return;
+  }
+
+  const btn = document.querySelector('.btn-ghost');
+  btn.textContent = '⏳ Generating…';
+
+  // Build an off-screen print container
+  const container = document.createElement('div');
+  container.style.cssText = 'position:fixed;left:-9999px;top:0;';
+
+  // -- Contents page --
+  const cp = document.createElement('div');
+  cp.style.cssText = 'background:white;width:210mm;padding:14mm;box-sizing:border-box;';
+  cp.innerHTML = `
+    <div style="border-bottom:4px solid #00bed6;padding-bottom:12px;margin-bottom:20px;">
+      <h1 style="font-family:sans-serif;font-weight:900;font-size:32px;text-transform:uppercase;color:#0d1f26;line-height:1;">
+        Delivery <span style="color:#00bed6;">Area</span> Index
+      </h1>
+      <p style="font-family:sans-serif;color:#6b8f9a;margin-top:4px;font-size:13px;">Leaflet distribution schedule</p>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-family:sans-serif;font-size:13px;">
+      <thead>
+        <tr style="border-bottom:2px solid #00bed6;">
+          <th style="text-align:left;padding:6px 8px;color:#6b8f9a;font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:0.08em;">#</th>
+          <th style="text-align:left;padding:6px 8px;color:#6b8f9a;font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:0.08em;">Area Name</th>
+          <th style="text-align:left;padding:6px 8px;color:#6b8f9a;font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:0.08em;">Streets</th>
+          <th style="text-align:left;padding:6px 8px;color:#6b8f9a;font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:0.08em;">Progress</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${areas.map((a, i) => {
+          const done = a.streets.filter(s=>s.done).length;
+          const total = a.streets.length;
+          const pct = total ? Math.round(done/total*100) : 0;
+          return `<tr style="border-bottom:1px solid #d0eef2;">
+            <td style="padding:8px;color:#00bed6;font-weight:700;font-size:18px;">${String(i+1).padStart(2,'0')}</td>
+            <td style="padding:8px;font-weight:600;color:#0d1f26;">${a.name}${a.notes ? `<br><span style="font-weight:400;color:#6b8f9a;font-size:11px;">${a.notes}</span>` : ''}</td>
+            <td style="padding:8px;color:#2c4a54;">${total}</td>
+            <td style="padding:8px;">
+              <div style="background:#d0eef2;border-radius:10px;height:6px;width:100px;overflow:hidden;">
+                <div style="background:#00bed6;height:100%;width:${pct}%;border-radius:10px;"></div>
+              </div>
+              <span style="color:#6b8f9a;font-size:10px;">${done}/${total} (${pct}%)</span>
+            </td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+  container.appendChild(cp);
+
+  // -- One page per area --
+  areas.forEach((area, idx) => {
+    const ap = document.createElement('div');
+    ap.style.cssText = 'background:white;width:210mm;min-height:297mm;padding:14mm;box-sizing:border-box;page-break-before:always;';
+    const done = area.streets.filter(s=>s.done).length;
+    const total = area.streets.length;
+    const pct = total ? Math.round(done/total*100) : 0;
+
+    ap.innerHTML = `
+      <div style="border-bottom:4px solid #00bed6;padding-bottom:10px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-end;">
+        <div>
+          <div style="font-family:sans-serif;font-weight:900;font-size:36px;text-transform:uppercase;color:#0d1f26;line-height:1;">
+            Area <span style="color:#00bed6;">${String(idx+1).padStart(2,'0')}</span>
+          </div>
+          <div style="font-family:sans-serif;font-size:16px;font-weight:600;color:#2c4a54;margin-top:2px;">${area.name}</div>
+          ${area.notes ? `<div style="font-family:sans-serif;font-size:12px;color:#6b8f9a;">${area.notes}</div>` : ''}
+        </div>
+        <div style="text-align:right;font-family:sans-serif;">
+          <div style="font-size:10px;color:#6b8f9a;text-transform:uppercase;letter-spacing:0.08em;">Progress</div>
+          <div style="font-size:22px;font-weight:700;color:#0d1f26;">${pct}%</div>
+          <div style="font-size:10px;color:#6b8f9a;">${done} of ${total} streets</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 220px;gap:16px;">
+        <div>
+          <div style="font-family:sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#6b8f9a;margin-bottom:8px;">Streets Checklist</div>
+          ${total === 0
+            ? '<p style="font-family:sans-serif;color:#6b8f9a;font-size:12px;font-style:italic;">No streets added yet.</p>'
+            : area.streets.map(s => `
+              <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #d0eef2;font-family:sans-serif;">
+                <div style="width:16px;height:16px;border:2px solid ${s.done ? '#00bed6' : '#d0eef2'};border-radius:3px;background:${s.done ? '#00bed6' : 'white'};flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                  ${s.done ? '<span style="color:white;font-size:10px;font-weight:700;">✓</span>' : ''}
+                </div>
+                <span style="color:${s.done ? '#6b8f9a' : '#0d1f26'};font-size:13px;text-decoration:${s.done ? 'line-through' : 'none'};">${s.name}</span>
+              </div>
+            `).join('')
+          }
+        </div>
+        <div>
+          <div style="font-family:sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#6b8f9a;margin-bottom:8px;">Map Area</div>
+          <div style="background:linear-gradient(135deg,#e0f9fc,#c8f0f5);border-radius:6px;height:200px;display:flex;align-items:center;justify-content:center;color:#009ab0;font-family:sans-serif;font-size:11px;text-align:center;padding:12px;">
+            ${area.mapUrl ? '[ Map: see digital version ]' : 'No map set\nAdd via the web app'}
+          </div>
+          <div style="margin-top:12px;font-family:sans-serif;font-size:11px;color:#6b8f9a;line-height:1.6;">
+            <strong style="color:#0d1f26;">Area:</strong> ${area.name}<br>
+            ${area.notes ? `<strong style="color:#0d1f26;">Notes:</strong> ${area.notes}<br>` : ''}
+            <strong style="color:#0d1f26;">Total streets:</strong> ${total}
+          </div>
+        </div>
+      </div>
+    `;
+    container.appendChild(ap);
+  });
+
+  document.body.appendChild(container);
+
+  const opt = {
+    margin: 0,
+    filename: 'leaflet-delivery-areas.pdf',
+    image: { type: 'jpeg', quality: 0.95 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['css', 'legacy'] }
+  };
+
+  try {
+    await html2pdf().set(opt).from(container).save();
+  } finally {
+    document.body.removeChild(container);
+    btn.textContent = '⬇ Export PDF';
+  }
+}
+
+// Close modal on overlay click
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ===== INIT =====
+renderContents();
+
+// Demo data if first visit
+if (areas.length === 0) {
+  areas = [
+    {
+      id: 'area_demo1',
+      name: 'North High Street',
+      notes: 'Near the park, include side roads',
+      mapUrl: '',
+      streets: [
+        { name: 'High Street', done: true, notes: '' },
+        { name: 'Church Lane', done: true, notes: '' },
+        { name: 'Mill Road', done: false, notes: '' },
+        { name: 'Oak Avenue', done: false, notes: 'Long road, both sides' },
+      ]
+    },
+    {
+      id: 'area_demo2',
+      name: 'Riverside South',
+      notes: 'Flats on the east side',
+      mapUrl: '',
+      streets: [
+        { name: 'River Road', done: false, notes: '' },
+        { name: 'Bridge Street', done: false, notes: '' },
+      ]
+    }
+  ];
+  save();
+  renderContents();
+}
+</script>
+</body>
+</html>
