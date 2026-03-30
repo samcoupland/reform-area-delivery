@@ -18,7 +18,6 @@
     --white: #ffffff;
     --grey-light: #f4fbfc;
     --grey-border: #d0eef2;
-    --accent: #ff5c35;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -30,7 +29,7 @@
     min-height: 100vh;
   }
 
-  /* ===== SCREEN STYLES ===== */
+  /* ===== NAV ===== */
   .screen-nav {
     background: var(--ink);
     padding: 0 2rem;
@@ -67,13 +66,15 @@
     align-items: center;
   }
 
+  /* FIX 1: All buttons share the same base size */
   .btn {
     font-family: 'Barlow Condensed', sans-serif;
     font-weight: 600;
     font-size: 0.85rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    padding: 6px 16px;
+    padding: 0 18px;
+    height: 36px;
     border-radius: 4px;
     border: none;
     cursor: pointer;
@@ -81,13 +82,12 @@
     text-decoration: none;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
+    white-space: nowrap;
   }
 
-  .btn-primary {
-    background: var(--reform);
-    color: var(--ink);
-  }
+  .btn-primary { background: var(--reform); color: var(--ink); }
   .btn-primary:hover { background: var(--reform-dark); color: var(--white); }
 
   .btn-ghost {
@@ -101,10 +101,23 @@
     background: transparent;
     color: #ff7a5c;
     border: 1.5px solid #ff7a5c;
-    font-size: 0.8rem;
-    padding: 4px 12px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0 18px;
+    height: 36px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
   .btn-danger:hover { background: #ff7a5c; color: white; }
+
+  .btn-sm { height: 28px; padding: 0 10px; font-size: 0.75rem; }
 
   /* ===== PAGES ===== */
   .page { display: none; }
@@ -148,7 +161,7 @@
   }
 
   .contents-wrapper {
-    max-width: 860px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 2rem 1.5rem 4rem;
   }
@@ -176,6 +189,7 @@
     gap: 1rem;
   }
 
+  /* FIX 3: Cards — polling code replaces numbering, ward sits below name */
   .area-card {
     background: var(--white);
     border: 1.5px solid var(--grey-border);
@@ -206,13 +220,19 @@
 
   .area-card:hover::before { transform: scaleY(1); }
 
-  .area-number {
+  .area-polling-code {
     font-family: 'Barlow Condensed', sans-serif;
     font-weight: 800;
-    font-size: 2rem;
-    color: var(--reform-mid);
+    font-size: 1.7rem;
+    color: var(--reform);
     line-height: 1;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.3rem;
+    letter-spacing: 0.04em;
+  }
+
+  .area-polling-code.empty {
+    font-size: 1rem;
+    color: var(--reform-mid);
   }
 
   .area-name {
@@ -222,7 +242,18 @@
     color: var(--ink);
     letter-spacing: 0.02em;
     text-transform: uppercase;
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.15rem;
+  }
+
+  /* Ward in smaller condensed font below title */
+  .area-ward-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--ink-light);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
   }
 
   .area-meta {
@@ -245,7 +276,7 @@
     border-radius: 20px;
   }
 
-  .status-done { background: #d4f5e9; color: #0d7a4e; }
+  .status-done    { background: #d4f5e9; color: #0d7a4e; }
   .status-partial { background: #fff3cd; color: #856404; }
   .status-pending { background: var(--reform-light); color: var(--reform-dark); }
 
@@ -275,25 +306,10 @@
     background: var(--reform-light);
   }
 
-  .export-bar {
-    background: var(--ink);
-    padding: 1rem 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
-  .export-bar p {
-    color: var(--ink-light);
-    font-size: 0.85rem;
-  }
-
   /* ===== AREA DETAIL PAGE ===== */
   .area-detail-header {
     background: var(--ink);
-    padding: 2rem 2rem 1.5rem;
+    padding: 1.25rem 2rem 1.5rem;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -301,23 +317,27 @@
     flex-wrap: wrap;
   }
 
-  .area-detail-header .back-btn {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.8rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--reform);
-    background: none;
-    border: none;
-    cursor: pointer;
-    display: flex;
+  /* FIX 5: Back button as a solid teal pill — clearly defined */
+  .back-btn {
+    display: inline-flex;
     align-items: center;
-    gap: 4px;
-    margin-bottom: 0.5rem;
-    padding: 0;
+    gap: 8px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: var(--reform);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 7px 16px;
+    margin-bottom: 0.75rem;
+    transition: all 0.15s ease;
   }
 
-  .area-detail-header .back-btn:hover { color: var(--white); }
+  .back-btn:hover { background: var(--reform-dark); color: var(--white); }
 
   .area-detail-title {
     font-family: 'Barlow Condensed', sans-serif;
@@ -331,7 +351,7 @@
   .area-detail-title span { color: var(--reform); }
 
   .area-detail-body {
-    max-width: 860px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 2rem 1.5rem 4rem;
     display: grid;
@@ -371,10 +391,19 @@
 
   .card-body { padding: 1.25rem; }
 
+  /* FIX 10: Map image styles */
+  .map-image {
+    width: 100%;
+    border-radius: 6px;
+    display: block;
+    max-height: 280px;
+    object-fit: cover;
+  }
+
   .map-placeholder {
     background: linear-gradient(135deg, var(--reform-light) 0%, #c8f0f5 100%);
     border-radius: 6px;
-    height: 240px;
+    height: 180px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -395,14 +424,58 @@
   .map-note {
     font-size: 0.75rem;
     color: var(--ink-light);
-    margin-top: 0.75rem;
+    margin-top: 0.4rem;
     font-family: 'Barlow', sans-serif;
     font-weight: 400;
     text-transform: none;
     letter-spacing: 0;
   }
 
-  /* Streets list */
+  .map-upload-row {
+    margin-top: 0.75rem;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .map-upload-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--reform-dark);
+    background: var(--reform-light);
+    border: 1.5px solid var(--reform);
+    border-radius: 4px;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .map-upload-label:hover { background: var(--reform); color: var(--ink); }
+  .map-upload-label input[type="file"] { display: none; }
+
+  .map-remove-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #ff7a5c;
+    background: transparent;
+    border: 1.5px solid #ff7a5c;
+    border-radius: 4px;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .map-remove-btn:hover { background: #ff7a5c; color: white; }
+
+  /* Streets */
   .street-list { list-style: none; }
 
   .street-item {
@@ -441,16 +514,9 @@
   }
 
   .street-name { flex: 1; color: var(--ink); }
-  .street-name.done {
-    text-decoration: line-through;
-    color: var(--ink-light);
-  }
+  .street-name.done { text-decoration: line-through; color: var(--ink-light); }
 
-  .street-notes {
-    font-size: 0.75rem;
-    color: var(--ink-light);
-    font-style: italic;
-  }
+  .street-notes { font-size: 0.75rem; color: var(--ink-light); font-style: italic; }
 
   .add-street-row {
     display: flex;
@@ -470,10 +536,7 @@
     transition: border-color 0.15s;
   }
 
-  .input-field:focus {
-    outline: none;
-    border-color: var(--reform);
-  }
+  .input-field:focus { outline: none; border-color: var(--reform); }
 
   .progress-bar-wrap {
     background: var(--grey-border);
@@ -490,13 +553,9 @@
     transition: width 0.3s ease;
   }
 
-  .progress-label {
-    font-size: 0.78rem;
-    color: var(--ink-light);
-    font-weight: 500;
-  }
+  .progress-label { font-size: 0.78rem; color: var(--ink-light); font-weight: 500; }
 
-  /* ===== MODALS ===== */
+  /* ===== MODAL ===== */
   .modal-overlay {
     display: none;
     position: fixed;
@@ -514,7 +573,7 @@
     border-radius: 10px;
     padding: 2rem;
     width: 100%;
-    max-width: 440px;
+    max-width: 460px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
   }
 
@@ -531,6 +590,14 @@
   .modal h2 span { color: var(--reform); }
 
   .form-group { margin-bottom: 1rem; }
+
+  /* FIX 2: Two-column row for ward + polling code */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
 
   .form-label {
     display: block;
@@ -571,70 +638,40 @@
     font-size: 0.85rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    padding: 7px 18px;
+    padding: 0 18px;
+    height: 36px;
     border-radius: 4px;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
   }
-
   .btn-cancel:hover { border-color: var(--ink-light); color: var(--ink); }
 
-  /* ===== PRINT STYLES ===== */
+  /* ===== PRINT ===== */
   @media print {
     body { background: white; }
-
-    .screen-nav, .export-bar, .add-area-card,
-    .add-street-row, .nav-actions, .back-btn,
-    .btn, .area-detail-header .area-actions { display: none !important; }
-
+    .screen-nav, .add-area-card, .add-street-row,
+    .nav-actions, .back-btn, .btn, .area-actions,
+    .map-upload-row { display: none !important; }
     .page { display: block !important; }
     .contents-page { page-break-after: always; }
     .area-page { page-break-before: always; }
-
-    .contents-hero {
-      padding: 1.5rem 1rem;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-
-    .area-detail-body {
-      grid-template-columns: 1fr 280px;
-      padding: 1rem;
-    }
-
+    .contents-hero { padding: 1.5rem 1rem; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .area-detail-body { grid-template-columns: 1fr 280px; padding: 1rem; }
     .area-card { break-inside: avoid; }
-
-    .map-placeholder {
-      height: 180px;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-
-    @page {
-      size: A4;
-      margin: 12mm 14mm;
-    }
-  }
-
-  /* ===== PDF EXPORT PAGE STYLE ===== */
-  .pdf-page {
-    background: white;
-    width: 210mm;
-    min-height: 297mm;
-    padding: 12mm 14mm;
-    box-sizing: border-box;
+    @page { size: A4; margin: 12mm 14mm; }
   }
 </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav class="screen-nav">
   <div class="nav-brand">
     <div class="dot"></div>
     Leaflet Delivery
   </div>
   <div class="nav-actions">
-    <button class="btn btn-ghost" onclick="exportAllPDF()">⬇ Export PDF</button>
+    <button class="btn btn-ghost" id="export-btn" onclick="exportAllPDF()">⬇ Export PDF</button>
     <button class="btn btn-primary" onclick="openModal()">+ Add Area</button>
   </div>
 </nav>
@@ -645,18 +682,12 @@
     <h1>Delivery <span>Area</span> Index</h1>
     <p>Leaflet distribution schedule &amp; street tracker</p>
   </div>
-
   <div class="contents-wrapper">
     <div class="section-header">
       <span class="section-title">All Areas</span>
       <span id="area-count" class="section-title">0 areas</span>
     </div>
-    <div class="area-grid" id="area-grid">
-      <div class="add-area-card" onclick="openModal()">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-        Add New Area
-      </div>
-    </div>
+    <div class="area-grid" id="area-grid"></div>
   </div>
 </div>
 
@@ -664,21 +695,16 @@
 <div id="page-area" class="page area-page">
   <div class="area-detail-header">
     <div>
-      <button class="back-btn" onclick="showContents()">
-        ← Back to Index
-      </button>
-      <div class="area-detail-title" id="detail-title">Area <span id="detail-number">1</span></div>
-      <div style="color: var(--ink-light); font-size:0.85rem; margin-top:4px;" id="detail-subtitle"></div>
+      <button class="back-btn" onclick="navigateToContents()">← Back to Index</button>
+      <div class="area-detail-title" id="detail-title"></div>
+      <div style="color:var(--ink-light);font-size:0.85rem;margin-top:4px;" id="detail-subtitle"></div>
     </div>
     <div class="area-actions" style="display:flex;gap:8px;align-items:center;margin-top:1.5rem;">
-      <button class="btn btn-ghost" onclick="printCurrentArea()">🖨 Print</button>
-      <button class="btn btn-danger" id="delete-area-btn" onclick="deleteCurrentArea()">Delete Area</button>
+      <button class="btn btn-ghost" onclick="window.print()">🖨 Print</button>
+      <button class="btn btn-danger" onclick="deleteCurrentArea()">Delete Area</button>
     </div>
   </div>
-
-  <div class="area-detail-body" id="area-detail-body">
-    <!-- Dynamically rendered -->
-  </div>
+  <div class="area-detail-body" id="area-detail-body"></div>
 </div>
 
 <!-- ADD AREA MODAL -->
@@ -689,13 +715,20 @@
       <label class="form-label">Area Name / Description</label>
       <input class="form-input" id="input-name" placeholder="e.g. North High Street" />
     </div>
+    <!-- FIX 2: Ward + Polling Code as a two-column row -->
+    <div class="form-row">
+      <div>
+        <label class="form-label">Ward</label>
+        <input class="form-input" id="input-ward" placeholder="e.g. Riverside" />
+      </div>
+      <div>
+        <label class="form-label">Polling Code</label>
+        <input class="form-input" id="input-polling" placeholder="e.g. RV-4A" />
+      </div>
+    </div>
     <div class="form-group">
       <label class="form-label">Notes (optional)</label>
       <input class="form-input" id="input-notes" placeholder="e.g. Near the park, avoid steep hill" />
-    </div>
-    <div class="form-group">
-      <label class="form-label">Map URL (optional, Google Maps embed or image link)</label>
-      <input class="form-input" id="input-map" placeholder="https://maps.google.com/..." />
     </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
@@ -713,14 +746,37 @@ function save() {
   localStorage.setItem('leaflet_areas', JSON.stringify(areas));
 }
 
-// ===== ROUTING =====
-function showContents() {
+// ===== FIX 6 & 7: Hash-based routing — browser back button works =====
+function navigateToContents() {
+  history.pushState(null, '', window.location.pathname);
+  showContentsView();
+}
+
+function navigateToArea(id) {
+  history.pushState({ areaId: id }, '', '#area/' + id);
+  showAreaView(id);
+}
+
+window.addEventListener('popstate', (e) => {
+  if (e.state && e.state.areaId) {
+    showAreaView(e.state.areaId);
+  } else {
+    showContentsView();
+  }
+});
+
+// ===== VIEW SWITCHERS =====
+function showContentsView() {
+  currentAreaId = null;
   document.getElementById('page-contents').classList.add('active');
   document.getElementById('page-area').classList.remove('active');
   renderContents();
 }
 
-function showArea(id) {
+// FIX 8: showAreaView always looks up the area freshly — no stale closure
+function showAreaView(id) {
+  const area = areas.find(a => a.id === id);
+  if (!area) { navigateToContents(); return; }
   currentAreaId = id;
   document.getElementById('page-contents').classList.remove('active');
   document.getElementById('page-area').classList.add('active');
@@ -732,23 +788,27 @@ function renderContents() {
   const grid = document.getElementById('area-grid');
   const count = document.getElementById('area-count');
   count.textContent = areas.length + ' area' + (areas.length !== 1 ? 's' : '');
-
-  // Clear all but the add card
   grid.innerHTML = '';
 
-  areas.forEach((area, idx) => {
-    const done = area.streets.filter(s => s.done).length;
+  areas.forEach((area) => {
+    const done  = area.streets.filter(s => s.done).length;
     const total = area.streets.length;
-    const pct = total ? Math.round((done/total)*100) : 0;
+    const pct   = total ? Math.round((done / total) * 100) : 0;
     const statusClass = pct === 100 ? 'status-done' : pct > 0 ? 'status-partial' : 'status-pending';
     const statusLabel = pct === 100 ? '✓ Complete' : pct > 0 ? `${pct}% Done` : 'Pending';
 
     const card = document.createElement('div');
     card.className = 'area-card';
-    card.onclick = () => showArea(area.id);
+
+    // FIX 8: Capture id in a const, use addEventListener not onclick attribute
+    const areaId = area.id;
+    card.addEventListener('click', () => navigateToArea(areaId));
+
+    // FIX 3: Polling code as badge, ward below name
     card.innerHTML = `
-      <div class="area-number">0${idx+1}</div>
+      <div class="area-polling-code ${area.pollingCode ? '' : 'empty'}">${area.pollingCode || 'No Code'}</div>
       <div class="area-name">${area.name}</div>
+      ${area.ward ? `<div class="area-ward-label">${area.ward}</div>` : ''}
       <div class="area-meta">
         <span>${total} street${total !== 1 ? 's' : ''}</span>
         <span class="status-pill ${statusClass}">${statusLabel}</span>
@@ -757,97 +817,120 @@ function renderContents() {
     grid.appendChild(card);
   });
 
-  // Add card
   const addCard = document.createElement('div');
   addCard.className = 'add-area-card';
-  addCard.onclick = openModal;
+  addCard.addEventListener('click', openModal);
   addCard.innerHTML = `
-    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path d="M12 5v14M5 12h14"/>
+    </svg>
     Add New Area
   `;
   grid.appendChild(addCard);
 }
 
 // ===== RENDER AREA DETAIL =====
+// FIX 8 & 9: Full re-render of body on area open; streets/progress update in-place after that
 function renderAreaDetail(id) {
   const area = areas.find(a => a.id === id);
   if (!area) return;
-  const idx = areas.indexOf(area);
 
-  document.getElementById('detail-number').textContent = (idx+1);
-  document.getElementById('detail-title').innerHTML = `Area <span style="color:var(--reform)">${idx+1}</span>`;
-  document.getElementById('detail-subtitle').textContent = area.name + (area.notes ? ' — ' + area.notes : '');
-
-  const done = area.streets.filter(s => s.done).length;
+  const done  = area.streets.filter(s => s.done).length;
   const total = area.streets.length;
-  const pct = total ? Math.round((done/total)*100) : 0;
+  const pct   = total ? Math.round((done / total) * 100) : 0;
 
-  const body = document.getElementById('area-detail-body');
-  body.innerHTML = `
-    <!-- Streets -->
+  // Header
+  document.getElementById('detail-title').innerHTML =
+    `${area.pollingCode ? `<span style="color:var(--reform)">${area.pollingCode}</span> — ` : ''}${area.name}`;
+  document.getElementById('detail-subtitle').textContent =
+    [area.ward, area.notes].filter(Boolean).join(' — ');
+
+  // Map HTML
+  const mapHTML = buildMapHTML(area);
+
+  // Full body render
+  document.getElementById('area-detail-body').innerHTML = `
     <div>
       <div class="card">
         <div class="card-header">
           <span class="card-title">Streets to Complete</span>
-          <span class="progress-label">${done}/${total} done</span>
+          <span class="progress-label" id="progress-count">${done}/${total} done</span>
         </div>
         <div class="card-body">
           <div class="progress-bar-wrap">
-            <div class="progress-bar-fill" style="width:${pct}%"></div>
+            <div class="progress-bar-fill" id="progress-bar" style="width:${pct}%"></div>
           </div>
-          <p class="progress-label" style="margin-bottom:0.75rem;">${pct}% complete</p>
+          <p class="progress-label" id="progress-pct" style="margin-bottom:0.75rem;">${pct}% complete</p>
           <ul class="street-list" id="street-list"></ul>
           <div class="add-street-row">
-            <input class="input-field" id="new-street-input" placeholder="Add a street name..." onkeydown="if(event.key==='Enter')addStreet('${id}')" />
-            <button class="btn btn-primary" onclick="addStreet('${id}')">Add</button>
+            <input class="input-field" id="new-street-input" placeholder="Add a street name…" />
+            <button class="btn btn-primary" id="add-street-btn">Add</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Map -->
     <div>
       <div class="card" style="margin-bottom:1rem;">
-        <div class="card-header">
-          <span class="card-title">Area Map</span>
-        </div>
-        <div class="card-body" style="padding:0.75rem;">
-          ${area.mapUrl
-            ? `<iframe src="${area.mapUrl}" width="100%" height="240" style="border:none;border-radius:6px;" loading="lazy" allowfullscreen></iframe>`
-            : `<div class="map-placeholder">
-                <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                  <path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6-10l6-3m0 13l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 10m0-3v13"/>
-                </svg>
-                <div>Map not set</div>
-                <div class="map-note">Add a Google Maps embed URL when editing this area</div>
-              </div>`
-          }
-          <div style="margin-top:0.75rem;display:flex;gap:6px;">
-            <input class="input-field" id="map-url-input" placeholder="Google Maps embed URL..." value="${area.mapUrl || ''}" style="flex:1;font-size:0.78rem;" />
-            <button class="btn btn-ghost" style="font-size:0.75rem;padding:5px 10px;" onclick="saveMapUrl('${id}')">Save</button>
-          </div>
-        </div>
+        <div class="card-header"><span class="card-title">Area Map</span></div>
+        <div class="card-body" style="padding:0.75rem;" id="map-card-body">${mapHTML}</div>
       </div>
 
       <div class="card">
-        <div class="card-header">
-          <span class="card-title">Summary</span>
-        </div>
+        <div class="card-header"><span class="card-title">Summary</span></div>
         <div class="card-body">
-          <div style="font-size:0.85rem;color:var(--ink-light);line-height:1.7;">
+          <div style="font-size:0.85rem;color:var(--ink-light);line-height:1.8;">
             <div><strong style="color:var(--ink);">Area:</strong> ${area.name}</div>
-            ${area.notes ? `<div><strong style="color:var(--ink);">Notes:</strong> ${area.notes}</div>` : ''}
-            <div><strong style="color:var(--ink);">Streets:</strong> ${total}</div>
-            <div><strong style="color:var(--ink);">Completed:</strong> ${done} (${pct}%)</div>
+            ${area.ward        ? `<div><strong style="color:var(--ink);">Ward:</strong> ${area.ward}</div>` : ''}
+            ${area.pollingCode ? `<div><strong style="color:var(--ink);">Polling Code:</strong> ${area.pollingCode}</div>` : ''}
+            ${area.notes       ? `<div><strong style="color:var(--ink);">Notes:</strong> ${area.notes}</div>` : ''}
+            <div id="summary-street"><strong style="color:var(--ink);">Streets:</strong> ${total}</div>
+            <div id="summary-completed"><strong style="color:var(--ink);">Completed:</strong> ${done} (${pct}%)</div>
           </div>
         </div>
       </div>
     </div>
   `;
 
+  // FIX 9: Attach street input listeners once after DOM is built
+  document.getElementById('new-street-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') addStreet(id);
+  });
+  document.getElementById('add-street-btn').addEventListener('click', () => addStreet(id));
+
   renderStreets(id);
 }
 
+function buildMapHTML(area) {
+  if (area.mapImageData) {
+    return `
+      <img src="${area.mapImageData}" class="map-image" alt="Area map" />
+      <div class="map-upload-row">
+        <label class="map-upload-label">
+          ↑ Replace Image
+          <input type="file" accept="image/*" onchange="handleMapUpload(event,'${area.id}')" />
+        </label>
+        <button class="map-remove-btn" onclick="removeMapImage('${area.id}')">Remove</button>
+      </div>`;
+  }
+  return `
+    <div class="map-placeholder">
+      <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6-10l6-3m0 13l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 10m0-3v13"/>
+      </svg>
+      <div>No map image</div>
+      <div class="map-note">Upload a screenshot or image from your file system</div>
+    </div>
+    <div class="map-upload-row">
+      <label class="map-upload-label">
+        ↑ Upload Map Image
+        <input type="file" accept="image/*" onchange="handleMapUpload(event,'${area.id}')" />
+      </label>
+    </div>`;
+}
+
+// ===== STREETS =====
+// FIX 9: renderStreets updates only the list + progress indicators — no full re-render
 function renderStreets(id) {
   const area = areas.find(a => a.id === id);
   const list = document.getElementById('street-list');
@@ -858,55 +941,105 @@ function renderStreets(id) {
     const li = document.createElement('li');
     li.className = 'street-item';
     li.innerHTML = `
-      <div class="street-check ${street.done ? 'checked' : ''}" onclick="toggleStreet('${id}', ${si})"></div>
+      <div class="street-check ${street.done ? 'checked' : ''}"></div>
       <span class="street-name ${street.done ? 'done' : ''}">${street.name}</span>
       ${street.notes ? `<span class="street-notes">${street.notes}</span>` : ''}
-      <button class="btn btn-danger" style="padding:2px 8px;font-size:0.7rem;" onclick="removeStreet('${id}',${si})">✕</button>
+      <button class="btn btn-danger btn-sm">✕</button>
     `;
+    li.querySelector('.street-check').addEventListener('click', () => toggleStreet(id, si));
+    li.querySelector('.btn-danger').addEventListener('click', () => removeStreet(id, si));
     list.appendChild(li);
   });
+
+  updateProgress(id);
 }
 
-// ===== ACTIONS =====
+// FIX 9 & 10: Update only progress elements, not the whole page
+function updateProgress(id) {
+  const area = areas.find(a => a.id === id);
+  if (!area) return;
+  const done  = area.streets.filter(s => s.done).length;
+  const total = area.streets.length;
+  const pct   = total ? Math.round((done / total) * 100) : 0;
+
+  const bar   = document.getElementById('progress-bar');
+  const cnt   = document.getElementById('progress-count');
+  const pctEl = document.getElementById('progress-pct');
+  const sumEl = document.getElementById('summary-completed');
+  const sumST = document.getElementById('summary-street')
+
+  if (bar)   bar.style.width   = pct + '%';
+  if (cnt)   cnt.textContent   = `${done}/${total} done`;
+  if (pctEl) pctEl.textContent = `${pct}% complete`;
+  if (sumEl) sumEl.innerHTML   = `<strong style="color:var(--ink);">Completed:</strong> ${done} (${pct}%)`;
+  if (sumST) sumST.innerHTML = `<strong style="color:var(--ink);">Street:</strong> ${total}`;
+}
+
 function toggleStreet(areaId, si) {
   const area = areas.find(a => a.id === areaId);
+  if (!area) return;
   area.streets[si].done = !area.streets[si].done;
   save();
-  renderAreaDetail(areaId);
+  renderStreets(areaId); // FIX 9: instant update
 }
 
 function addStreet(areaId) {
   const input = document.getElementById('new-street-input');
-  const name = input.value.trim();
+  const name  = input.value.trim();
   if (!name) return;
-  const area = areas.find(a => a.id === areaId);
+  const area  = areas.find(a => a.id === areaId);
+  if (!area) return;
   area.streets.push({ name, done: false, notes: '' });
   save();
   input.value = '';
-  renderAreaDetail(areaId);
+  renderStreets(areaId); // FIX 9: instant update
 }
 
 function removeStreet(areaId, si) {
   const area = areas.find(a => a.id === areaId);
+  if (!area) return;
   area.streets.splice(si, 1);
   save();
-  renderAreaDetail(areaId);
+  renderStreets(areaId); // FIX 9: instant update
 }
 
-function saveMapUrl(areaId) {
-  const url = document.getElementById('map-url-input').value.trim();
+// ===== FIX 10: File-system image upload =====
+function handleMapUpload(event, areaId) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const area = areas.find(a => a.id === areaId);
+    if (!area) return;
+    area.mapImageData = e.target.result;
+    save();
+    refreshMapCard(areaId);
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeMapImage(areaId) {
   const area = areas.find(a => a.id === areaId);
-  area.mapUrl = url;
+  if (!area) return;
+  delete area.mapImageData;
   save();
-  renderAreaDetail(areaId);
+  refreshMapCard(areaId);
 }
 
+function refreshMapCard(areaId) {
+  const area     = areas.find(a => a.id === areaId);
+  const cardBody = document.getElementById('map-card-body');
+  if (!cardBody || !area) return;
+  cardBody.innerHTML = buildMapHTML(area);
+}
+
+// ===== AREA ACTIONS =====
 function deleteCurrentArea() {
   if (!currentAreaId) return;
   if (!confirm('Delete this area and all its streets?')) return;
   areas = areas.filter(a => a.id !== currentAreaId);
   save();
-  showContents();
+  navigateToContents();
 }
 
 // ===== MODAL =====
@@ -917,75 +1050,87 @@ function openModal() {
 
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
-  document.getElementById('input-name').value = '';
-  document.getElementById('input-notes').value = '';
-  document.getElementById('input-map').value = '';
+  ['input-name','input-ward','input-polling','input-notes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
 }
 
 function addArea() {
   const name = document.getElementById('input-name').value.trim();
   if (!name) { document.getElementById('input-name').focus(); return; }
-  const notes = document.getElementById('input-notes').value.trim();
-  const mapUrl = document.getElementById('input-map').value.trim();
-  const id = 'area_' + Date.now();
-  areas.push({ id, name, notes, mapUrl, streets: [] });
+  const ward        = document.getElementById('input-ward').value.trim();
+  const pollingCode = document.getElementById('input-polling').value.trim();
+  const notes       = document.getElementById('input-notes').value.trim();
+  const id          = 'area_' + Date.now();
+  areas.push({ id, name, ward, pollingCode, notes, streets: [] });
   save();
   closeModal();
   renderContents();
 }
 
-// ===== PRINT =====
-function printCurrentArea() {
-  window.print();
-}
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
 
-// ===== PDF EXPORT =====
+// ===== FIX 4: PDF export with date/time filename =====
 async function exportAllPDF() {
   if (areas.length === 0) {
     alert('No areas to export. Add some areas first!');
     return;
   }
 
-  const btn = document.querySelector('.btn-ghost');
-  btn.textContent = '⏳ Generating…';
+  const exportBtn = document.getElementById('export-btn');
+  exportBtn.textContent = '⏳ Generating…';
+  exportBtn.disabled = true;
 
-  // Build an off-screen print container
+  // Filename: leaflet-delivery_2025-06-14_14-30.pdf
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const stamp    = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}`;
+  const filename = `leaflet-delivery_${stamp}.pdf`;
+
   const container = document.createElement('div');
-  container.style.cssText = 'position:fixed;left:-9999px;top:0;';
+  container.style.cssText = 'position:fixed;left:-9999px;top:0;width:210mm;';
 
-  // -- Contents page --
+  // Index page
   const cp = document.createElement('div');
   cp.style.cssText = 'background:white;width:210mm;padding:14mm;box-sizing:border-box;';
   cp.innerHTML = `
     <div style="border-bottom:4px solid #00bed6;padding-bottom:12px;margin-bottom:20px;">
-      <h1 style="font-family:sans-serif;font-weight:900;font-size:32px;text-transform:uppercase;color:#0d1f26;line-height:1;">
+      <h1 style="font-family:sans-serif;font-weight:900;font-size:30px;text-transform:uppercase;color:#0d1f26;line-height:1;">
         Delivery <span style="color:#00bed6;">Area</span> Index
       </h1>
-      <p style="font-family:sans-serif;color:#6b8f9a;margin-top:4px;font-size:13px;">Leaflet distribution schedule</p>
+      <p style="font-family:sans-serif;color:#6b8f9a;margin-top:4px;font-size:11px;">
+        Leaflet distribution schedule &nbsp;·&nbsp; Exported ${now.toLocaleDateString('en-GB')} at ${now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}
+      </p>
     </div>
-    <table style="width:100%;border-collapse:collapse;font-family:sans-serif;font-size:13px;">
+    <table style="width:100%;border-collapse:collapse;font-family:sans-serif;font-size:12px;">
       <thead>
         <tr style="border-bottom:2px solid #00bed6;">
-          <th style="text-align:left;padding:6px 8px;color:#6b8f9a;font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:0.08em;">#</th>
-          <th style="text-align:left;padding:6px 8px;color:#6b8f9a;font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:0.08em;">Area Name</th>
-          <th style="text-align:left;padding:6px 8px;color:#6b8f9a;font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:0.08em;">Streets</th>
-          <th style="text-align:left;padding:6px 8px;color:#6b8f9a;font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:0.08em;">Progress</th>
+          <th style="text-align:left;padding:5px 7px;color:#6b8f9a;font-weight:700;text-transform:uppercase;font-size:9px;letter-spacing:0.08em;">Code</th>
+          <th style="text-align:left;padding:5px 7px;color:#6b8f9a;font-weight:700;text-transform:uppercase;font-size:9px;letter-spacing:0.08em;">Area / Ward</th>
+          <th style="text-align:left;padding:5px 7px;color:#6b8f9a;font-weight:700;text-transform:uppercase;font-size:9px;letter-spacing:0.08em;">Streets</th>
+          <th style="text-align:left;padding:5px 7px;color:#6b8f9a;font-weight:700;text-transform:uppercase;font-size:9px;letter-spacing:0.08em;">Progress</th>
         </tr>
       </thead>
       <tbody>
-        ${areas.map((a, i) => {
-          const done = a.streets.filter(s=>s.done).length;
-          const total = a.streets.length;
-          const pct = total ? Math.round(done/total*100) : 0;
+        ${areas.map((a) => {
+          const d = a.streets.filter(s=>s.done).length;
+          const t = a.streets.length;
+          const p = t ? Math.round(d/t*100) : 0;
           return `<tr style="border-bottom:1px solid #d0eef2;">
-            <td style="padding:8px;color:#00bed6;font-weight:700;font-size:18px;">${String(i+1).padStart(2,'0')}</td>
-            <td style="padding:8px;font-weight:600;color:#0d1f26;">${a.name}${a.notes ? `<br><span style="font-weight:400;color:#6b8f9a;font-size:11px;">${a.notes}</span>` : ''}</td>
-            <td style="padding:8px;color:#2c4a54;">${total}</td>
-            <td style="padding:8px;">
-              <div style="background:#d0eef2;border-radius:10px;height:6px;width:100px;overflow:hidden;">
-                <div style="background:#00bed6;height:100%;width:${pct}%;border-radius:10px;"></div>
+            <td style="padding:7px;color:#00bed6;font-weight:700;font-size:14px;">${a.pollingCode||'—'}</td>
+            <td style="padding:7px;font-weight:600;color:#0d1f26;">
+              ${a.name}
+              ${a.ward  ? `<br><span style="font-weight:400;color:#6b8f9a;font-size:10px;">${a.ward}</span>` : ''}
+              ${a.notes ? `<br><span style="font-weight:400;color:#6b8f9a;font-size:10px;font-style:italic;">${a.notes}</span>` : ''}
+            </td>
+            <td style="padding:7px;color:#2c4a54;">${t}</td>
+            <td style="padding:7px;">
+              <div style="background:#d0eef2;border-radius:10px;height:5px;width:80px;overflow:hidden;">
+                <div style="background:#00bed6;height:100%;width:${p}%;border-radius:10px;"></div>
               </div>
-              <span style="color:#6b8f9a;font-size:10px;">${done}/${total} (${pct}%)</span>
+              <span style="color:#6b8f9a;font-size:9px;">${d}/${t} (${p}%)</span>
             </td>
           </tr>`;
         }).join('')}
@@ -994,66 +1139,60 @@ async function exportAllPDF() {
   `;
   container.appendChild(cp);
 
-  // -- One page per area --
-  areas.forEach((area, idx) => {
+  // One page per area
+  for (const area of areas) {
     const ap = document.createElement('div');
     ap.style.cssText = 'background:white;width:210mm;min-height:297mm;padding:14mm;box-sizing:border-box;page-break-before:always;';
-    const done = area.streets.filter(s=>s.done).length;
-    const total = area.streets.length;
-    const pct = total ? Math.round(done/total*100) : 0;
+    const d = area.streets.filter(s=>s.done).length;
+    const t = area.streets.length;
+    const p = t ? Math.round(d/t*100) : 0;
+
+    const mapSection = area.mapImageData
+      ? `<img src="${area.mapImageData}" style="width:100%;border-radius:6px;max-height:160px;object-fit:cover;" alt="Map" />`
+      : `<div style="background:linear-gradient(135deg,#e0f9fc,#c8f0f5);border-radius:6px;height:140px;display:flex;align-items:center;justify-content:center;color:#009ab0;font-family:sans-serif;font-size:11px;text-align:center;padding:12px;">No map image set</div>`;
 
     ap.innerHTML = `
-      <div style="border-bottom:4px solid #00bed6;padding-bottom:10px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-end;">
+      <div style="border-bottom:4px solid #00bed6;padding-bottom:10px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:flex-end;">
         <div>
-          <div style="font-family:sans-serif;font-weight:900;font-size:36px;text-transform:uppercase;color:#0d1f26;line-height:1;">
-            Area <span style="color:#00bed6;">${String(idx+1).padStart(2,'0')}</span>
-          </div>
-          <div style="font-family:sans-serif;font-size:16px;font-weight:600;color:#2c4a54;margin-top:2px;">${area.name}</div>
-          ${area.notes ? `<div style="font-family:sans-serif;font-size:12px;color:#6b8f9a;">${area.notes}</div>` : ''}
+          ${area.pollingCode ? `<div style="font-family:sans-serif;font-weight:900;font-size:26px;color:#00bed6;line-height:1;">${area.pollingCode}</div>` : ''}
+          <div style="font-family:sans-serif;font-weight:700;font-size:18px;text-transform:uppercase;color:#0d1f26;line-height:1.1;">${area.name}</div>
+          ${area.ward  ? `<div style="font-family:sans-serif;font-size:11px;color:#6b8f9a;">${area.ward}</div>` : ''}
+          ${area.notes ? `<div style="font-family:sans-serif;font-size:10px;color:#6b8f9a;font-style:italic;">${area.notes}</div>` : ''}
         </div>
         <div style="text-align:right;font-family:sans-serif;">
-          <div style="font-size:10px;color:#6b8f9a;text-transform:uppercase;letter-spacing:0.08em;">Progress</div>
-          <div style="font-size:22px;font-weight:700;color:#0d1f26;">${pct}%</div>
-          <div style="font-size:10px;color:#6b8f9a;">${done} of ${total} streets</div>
+          <div style="font-size:9px;color:#6b8f9a;text-transform:uppercase;letter-spacing:0.08em;">Progress</div>
+          <div style="font-size:20px;font-weight:700;color:#0d1f26;">${p}%</div>
+          <div style="font-size:9px;color:#6b8f9a;">${d} of ${t} streets</div>
         </div>
       </div>
-
-      <div style="display:grid;grid-template-columns:1fr 220px;gap:16px;">
+      <div style="display:grid;grid-template-columns:1fr 185px;gap:14px;">
         <div>
-          <div style="font-family:sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#6b8f9a;margin-bottom:8px;">Streets Checklist</div>
-          ${total === 0
-            ? '<p style="font-family:sans-serif;color:#6b8f9a;font-size:12px;font-style:italic;">No streets added yet.</p>'
+          <div style="font-family:sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#6b8f9a;margin-bottom:6px;">Streets Checklist</div>
+          ${t === 0
+            ? '<p style="font-family:sans-serif;color:#6b8f9a;font-size:11px;font-style:italic;">No streets added yet.</p>'
             : area.streets.map(s => `
-              <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #d0eef2;font-family:sans-serif;">
-                <div style="width:16px;height:16px;border:2px solid ${s.done ? '#00bed6' : '#d0eef2'};border-radius:3px;background:${s.done ? '#00bed6' : 'white'};flex-shrink:0;display:flex;align-items:center;justify-content:center;">
-                  ${s.done ? '<span style="color:white;font-size:10px;font-weight:700;">✓</span>' : ''}
+              <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #d0eef2;font-family:sans-serif;">
+                <div style="width:13px;height:13px;border:2px solid ${s.done?'#00bed6':'#d0eef2'};border-radius:2px;background:${s.done?'#00bed6':'white'};flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                  ${s.done?'<span style="color:white;font-size:8px;font-weight:700;">✓</span>':''}
                 </div>
-                <span style="color:${s.done ? '#6b8f9a' : '#0d1f26'};font-size:13px;text-decoration:${s.done ? 'line-through' : 'none'};">${s.name}</span>
-              </div>
-            `).join('')
+                <span style="font-size:11px;color:${s.done?'#6b8f9a':'#0d1f26'};text-decoration:${s.done?'line-through':'none'};">${s.name}</span>
+              </div>`).join('')
           }
         </div>
         <div>
-          <div style="font-family:sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#6b8f9a;margin-bottom:8px;">Map Area</div>
-          <div style="background:linear-gradient(135deg,#e0f9fc,#c8f0f5);border-radius:6px;height:200px;display:flex;align-items:center;justify-content:center;color:#009ab0;font-family:sans-serif;font-size:11px;text-align:center;padding:12px;">
-            ${area.mapUrl ? '[ Map: see digital version ]' : 'No map set\nAdd via the web app'}
-          </div>
-          <div style="margin-top:12px;font-family:sans-serif;font-size:11px;color:#6b8f9a;line-height:1.6;">
-            <strong style="color:#0d1f26;">Area:</strong> ${area.name}<br>
-            ${area.notes ? `<strong style="color:#0d1f26;">Notes:</strong> ${area.notes}<br>` : ''}
-            <strong style="color:#0d1f26;">Total streets:</strong> ${total}
-          </div>
+          <div style="font-family:sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#6b8f9a;margin-bottom:6px;">Map</div>
+          ${mapSection}
         </div>
       </div>
     `;
     container.appendChild(ap);
-  });
+  }
 
   document.body.appendChild(container);
 
   const opt = {
     margin: 0,
-    filename: 'leaflet-delivery-areas.pdf',
+    filename,
     image: { type: 'jpeg', quality: 0.95 },
     html2canvas: { scale: 2, useCORS: true },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
@@ -1064,26 +1203,20 @@ async function exportAllPDF() {
     await html2pdf().set(opt).from(container).save();
   } finally {
     document.body.removeChild(container);
-    btn.textContent = '⬇ Export PDF';
+    exportBtn.textContent = '⬇ Export PDF';
+    exportBtn.disabled = false;
   }
 }
 
-// Close modal on overlay click
-document.getElementById('modal-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
-
 // ===== INIT =====
-renderContents();
-
-// Demo data if first visit
 if (areas.length === 0) {
   areas = [
     {
       id: 'area_demo1',
       name: 'North High Street',
+      ward: 'Riverside Ward',
+      pollingCode: 'RV-1A',
       notes: 'Near the park, include side roads',
-      mapUrl: '',
       streets: [
         { name: 'High Street', done: true, notes: '' },
         { name: 'Church Lane', done: true, notes: '' },
@@ -1094,8 +1227,9 @@ if (areas.length === 0) {
     {
       id: 'area_demo2',
       name: 'Riverside South',
+      ward: 'Riverside Ward',
+      pollingCode: 'RV-2B',
       notes: 'Flats on the east side',
-      mapUrl: '',
       streets: [
         { name: 'River Road', done: false, notes: '' },
         { name: 'Bridge Street', done: false, notes: '' },
@@ -1103,8 +1237,9 @@ if (areas.length === 0) {
     }
   ];
   save();
-  renderContents();
 }
+
+showContentsView();
 </script>
 </body>
 </html>
