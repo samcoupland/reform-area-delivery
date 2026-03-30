@@ -66,7 +66,6 @@
     align-items: center;
   }
 
-  /* FIX 1: All buttons share the same base size */
   .btn {
     font-family: 'Barlow Condensed', sans-serif;
     font-weight: 600;
@@ -189,7 +188,6 @@
     gap: 1rem;
   }
 
-  /* FIX 3: Cards — polling code replaces numbering, ward sits below name */
   .area-card {
     background: var(--white);
     border: 1.5px solid var(--grey-border);
@@ -317,7 +315,6 @@
     flex-wrap: wrap;
   }
 
-  /* FIX 5: Back button as a solid teal pill — clearly defined */
   .back-btn {
     display: inline-flex;
     align-items: center;
@@ -391,7 +388,6 @@
 
   .card-body { padding: 1.25rem; }
 
-  /* FIX 10: Map image styles */
   .map-image {
     width: 100%;
     border-radius: 6px;
@@ -591,7 +587,6 @@
 
   .form-group { margin-bottom: 1rem; }
 
-  /* FIX 2: Two-column row for ward + polling code */
   .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -715,7 +710,6 @@
       <label class="form-label">Area Name / Description</label>
       <input class="form-input" id="input-name" placeholder="e.g. North High Street" />
     </div>
-    <!-- FIX 2: Ward + Polling Code as a two-column row -->
     <div class="form-row">
       <div>
         <label class="form-label">Ward</label>
@@ -746,7 +740,7 @@ function save() {
   localStorage.setItem('leaflet_areas', JSON.stringify(areas));
 }
 
-// ===== FIX 6 & 7: Hash-based routing — browser back button works =====
+// ===== NAVIGATION =====
 function navigateToContents() {
   history.pushState(null, '', window.location.pathname);
   showContentsView();
@@ -773,7 +767,6 @@ function showContentsView() {
   renderContents();
 }
 
-// FIX 8: showAreaView always looks up the area freshly — no stale closure
 function showAreaView(id) {
   const area = areas.find(a => a.id === id);
   if (!area) { navigateToContents(); return; }
@@ -800,11 +793,9 @@ function renderContents() {
     const card = document.createElement('div');
     card.className = 'area-card';
 
-    // FIX 8: Capture id in a const, use addEventListener not onclick attribute
     const areaId = area.id;
     card.addEventListener('click', () => navigateToArea(areaId));
 
-    // FIX 3: Polling code as badge, ward below name
     card.innerHTML = `
       <div class="area-polling-code ${area.pollingCode ? '' : 'empty'}">${area.pollingCode || 'No Code'}</div>
       <div class="area-name">${area.name}</div>
@@ -830,7 +821,6 @@ function renderContents() {
 }
 
 // ===== RENDER AREA DETAIL =====
-// FIX 8 & 9: Full re-render of body on area open; streets/progress update in-place after that
 function renderAreaDetail(id) {
   const area = areas.find(a => a.id === id);
   if (!area) return;
@@ -892,7 +882,7 @@ function renderAreaDetail(id) {
     </div>
   `;
 
-  // FIX 9: Attach street input listeners once after DOM is built
+  // Attach street input listeners once after DOM is built
   document.getElementById('new-street-input').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') addStreet(id);
   });
@@ -930,7 +920,6 @@ function buildMapHTML(area) {
 }
 
 // ===== STREETS =====
-// FIX 9: renderStreets updates only the list + progress indicators — no full re-render
 function renderStreets(id) {
   const area = areas.find(a => a.id === id);
   const list = document.getElementById('street-list');
@@ -954,7 +943,6 @@ function renderStreets(id) {
   updateProgress(id);
 }
 
-// FIX 9 & 10: Update only progress elements, not the whole page
 function updateProgress(id) {
   const area = areas.find(a => a.id === id);
   if (!area) return;
@@ -980,7 +968,7 @@ function toggleStreet(areaId, si) {
   if (!area) return;
   area.streets[si].done = !area.streets[si].done;
   save();
-  renderStreets(areaId); // FIX 9: instant update
+  renderStreets(areaId);
 }
 
 function addStreet(areaId) {
@@ -992,7 +980,7 @@ function addStreet(areaId) {
   area.streets.push({ name, done: false, notes: '' });
   save();
   input.value = '';
-  renderStreets(areaId); // FIX 9: instant update
+  renderStreets(areaId);
 }
 
 function removeStreet(areaId, si) {
@@ -1000,10 +988,10 @@ function removeStreet(areaId, si) {
   if (!area) return;
   area.streets.splice(si, 1);
   save();
-  renderStreets(areaId); // FIX 9: instant update
+  renderStreets(areaId);
 }
 
-// ===== FIX 10: File-system image upload =====
+// ===== File-system image upload =====
 function handleMapUpload(event, areaId) {
   const file = event.target.files[0];
   if (!file) return;
@@ -1072,7 +1060,7 @@ document.getElementById('modal-overlay').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
 
-// ===== FIX 4: PDF export with date/time filename =====
+// ===== PDF export with date/time filename =====
 async function exportAllPDF() {
   if (areas.length === 0) {
     alert('No areas to export. Add some areas first!');
@@ -1208,7 +1196,7 @@ async function exportAllPDF() {
   }
 }
 
-// ===== INIT =====
+// ===== SEED DATA =====
 if (areas.length === 0) {
   areas = [
     {
